@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Pill from "./components/Pill";
 
 export default function App() {
@@ -6,6 +6,8 @@ export default function App() {
   const [suggestions, setSuggestions] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedUserSet, setSelectedUserSet] = useState(new Set());
+  const inputRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     const fetchUsers = (searchTerm) => {
@@ -24,7 +26,19 @@ export default function App() {
         });
     };
 
-    fetchUsers(searchTerm);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      fetchUsers(searchTerm);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
   }, [searchTerm]);
 
   const handleSelectUser = (user) => {
@@ -32,6 +46,7 @@ export default function App() {
     setSelectedUserSet(new Set([...selectedUserSet, user.email]));
     setSearchTerm("");
     setSuggestions([]);
+    inputRef.current.focus();
   };
 
   const handleRemoveUser = (user) => {
@@ -39,6 +54,22 @@ export default function App() {
       selectedUsers.filter((u) => u.email !== user.email)
     );
     setSelectedUserSet(updatedUsers);
+
+    const updatedEmails = new Set(selectedUserSet);
+    updatedEmails.delete(user.email);
+    setSelectedUserSet(updatedEmails);
+  };
+
+  const handleKeyDown = (e) => {
+    if (
+      e.key === "Backspace" &&
+      e.target.value === "" &&
+      selectedUsers.length > 0
+    ) {
+      const lastUser = selectedUsers[selectedUsers.length - 1];
+      handleRemoveUser(lastUser);
+      setSearchTerm("");
+    }
   };
 
   return (
@@ -59,11 +90,13 @@ export default function App() {
         {/* Input field with search suggestion */}
         <div>
           <input
+            ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search for users..."
             className="focus:outline-none border-none outline-none"
+            onKeyDown={handleKeyDown}
           />
 
           {/* Search suggestions */}
