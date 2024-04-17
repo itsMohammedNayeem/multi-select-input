@@ -73,7 +73,7 @@ export default function App() {
   };
 
   return (
-    <div className="user-search-container font-mono flex relative">
+    <div className="user-search-container font-mono flex relative m-5 items-center ">
       <div className="user-search-input w-full flex items-center flex-wrap gap-2 p-2 border-[#ccc] border rounded-[20px]">
         {/* Pills */}
         {selectedUsers.map((user) => {
@@ -95,7 +95,7 @@ export default function App() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search for users..."
-            className="focus:outline-none border-none outline-none"
+            className="focus:outline-none border-none outline-none w-full"
             onKeyDown={handleKeyDown}
           />
 
