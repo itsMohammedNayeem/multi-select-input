@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Pill from "./components/Pill";
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,10 +34,27 @@ export default function App() {
     setSuggestions([]);
   };
 
+  const handleRemoveUser = (user) => {
+    const updatedUsers = setSelectedUsers(
+      selectedUsers.filter((u) => u.email !== user.email)
+    );
+    setSelectedUserSet(updatedUsers);
+  };
+
   return (
     <div className="user-search-container font-mono flex relative">
       <div className="user-search-input w-full flex items-center flex-wrap gap-2 p-2 border-[#ccc] border rounded-[20px]">
         {/* Pills */}
+        {selectedUsers.map((user) => {
+          return (
+            <Pill
+              key={user.email}
+              image={user.image}
+              text={`${user.firstName} ${user.lastName}`}
+              onClick={() => handleRemoveUser(user)}
+            />
+          );
+        })}
 
         {/* Input field with search suggestion */}
         <div>
