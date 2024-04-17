@@ -4,6 +4,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedUserSet, setSelectedUserSet] = useState(new Set());
 
   useEffect(() => {
     const fetchUsers = (searchTerm) => {
@@ -27,6 +28,7 @@ export default function App() {
 
   const handleSelectUser = (user) => {
     setSelectedUsers([...selectedUsers, user]);
+    setSelectedUserSet(new Set([...selectedUserSet, user.email]));
     setSearchTerm("");
     setSuggestions([]);
   };
@@ -47,23 +49,27 @@ export default function App() {
           />
 
           {/* Search suggestions */}
-          <ul className="suggestions-list max-h-[300px] overflow-y-scroll list-none p-0 m-0 absolute bg-[#fff] border border-[#ccc]">
-            {suggestions?.users?.map((suggestion) => (
-              <li
-                key={suggestion.email}
-                className="suggestion-item flex items-center gap-[10px] py-2 px-[10px] cursor-pointer border-b border-[#ccc] last:border-b-0 hover:bg-[#ccc]"
-                onClick={() => handleSelectUser(suggestion)}
-              >
-                <img
-                  src={suggestion.image}
-                  alt={`${suggestion.firstName} ${suggestion.lastName}`}
-                  className="h-[20px]"
-                />
-                <span>
-                  {suggestion.firstName} {suggestion.lastName}
-                </span>
-              </li>
-            ))}
+          <ul className="suggestions-list max-h-[300px] overflow-y-auto list-none p-0 m-0 absolute bg-[#fff] border border-[#ccc]">
+            {suggestions?.users?.map((user) => {
+              return !selectedUserSet.has(user.email) ? (
+                <li
+                  key={user.email}
+                  className="suggestion-item flex items-center gap-[10px] py-2 px-[10px] cursor-pointer border-b border-[#ccc] last:border-b-0 hover:bg-[#ccc]"
+                  onClick={() => handleSelectUser(user)}
+                >
+                  <img
+                    src={user.image}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="h-[20px]"
+                  />
+                  <span>
+                    {user.firstName} {user.lastName}
+                  </span>
+                </li>
+              ) : (
+                <></>
+              );
+            })}
           </ul>
         </div>
       </div>
